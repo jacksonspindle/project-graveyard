@@ -22,10 +22,10 @@ export const db = {
     async create(project: {
       user_id: string
       name: string
-      description?: string
+      description?: string | null
       death_date: string
       death_cause: string
-      epitaph?: string
+      epitaph?: string | null
       tech_stack: string[]
     }) {
       const { data, error } = await supabase
@@ -51,8 +51,8 @@ export const db = {
 
     async update(id: string, updates: Partial<{
       name: string
-      description: string
-      epitaph: string
+      description: string | null
+      epitaph: string | null
       revival_status: string
     }>) {
       const { data, error } = await supabase
@@ -90,9 +90,9 @@ export const db = {
 
     async create(postMortem: {
       project_id: string
-      what_problem?: string
-      what_went_wrong?: string
-      lessons_learned?: string
+      what_problem?: string | null
+      what_went_wrong?: string | null
+      lessons_learned?: string | null
     }) {
       const { data, error } = await supabase
         .from('post_mortems')
@@ -105,9 +105,9 @@ export const db = {
     },
 
     async update(id: string, updates: Partial<{
-      what_problem: string
-      what_went_wrong: string
-      lessons_learned: string
+      what_problem: string | null
+      what_went_wrong: string | null
+      lessons_learned: string | null
     }>) {
       const { data, error } = await supabase
         .from('post_mortems')
