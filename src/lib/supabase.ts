@@ -82,7 +82,7 @@ export const db = {
         .from('post_mortems')
         .select('*')
         .eq('project_id', projectId)
-        .single()
+        .maybeSingle()
       
       if (error) throw error
       return data
@@ -125,6 +125,45 @@ export const db = {
         .from('post_mortems')
         .delete()
         .eq('id', id)
+      
+      if (error) throw error
+    }
+  },
+
+  aiInsights: {
+    async getByPostMortemId(postMortemId: string) {
+      const { data, error } = await supabase
+        .from('ai_insights')
+        .select('*')
+        .eq('post_mortem_id', postMortemId)
+        .order('created_at', { ascending: true })
+      
+      if (error) throw error
+      return data
+    },
+
+    async create(insight: {
+      project_id: string
+      post_mortem_id: string
+      insight_type: 'pattern_recognition' | 'coaching' | 'questions' | 'strategies'
+      content: string
+      confidence_score?: number
+    }) {
+      const { data, error } = await supabase
+        .from('ai_insights')
+        .insert([insight])
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    },
+
+    async deleteByPostMortemId(postMortemId: string) {
+      const { error } = await supabase
+        .from('ai_insights')
+        .delete()
+        .eq('post_mortem_id', postMortemId)
       
       if (error) throw error
     }

@@ -10,6 +10,7 @@ import { db } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import type { Project, PostMortem } from "@/types"
 import { formatDate, getTimeAgo } from "@/lib/utils"
+import { AIInsights } from "@/components/ai-insights"
 
 interface ProjectDetailPageProps {
   params: {
@@ -151,125 +152,154 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Project Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Tombstone Card */}
-            <Card className="bg-gray-800/50 border-gray-700">
-              <CardHeader className="text-center">
-                <div className="text-6xl mb-4">🪦</div>
-                <CardTitle className="text-gray-100 text-2xl">
-                  {project.name}
-                </CardTitle>
-                {project.epitaph && (
-                  <CardDescription className="text-gray-300 italic text-lg">
-                    "{project.epitaph}"
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {project.description && (
-                    <div>
-                      <h3 className="font-semibold text-gray-200 mb-2">About this project</h3>
-                      <p className="text-gray-300">{project.description}</p>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium text-gray-200 mb-1">Date of Death</h4>
-                      <p className="text-gray-300">{formatDate(project.death_date)}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-200 mb-1">Cause of Death</h4>
-                      <p className="text-gray-300 flex items-center gap-1">
-                        {DEATH_CAUSE_EMOJIS[project.death_cause]}
-                        {DEATH_CAUSES[project.death_cause]}
-                      </p>
-                    </div>
-                  </div>
-
-                  {project.tech_stack.length > 0 && (
-                    <div>
-                      <h4 className="font-medium text-gray-200 mb-2">Tech Stack</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {project.tech_stack.map((tech) => (
-                          <span 
-                            key={tech}
-                            className="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-full"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <h4 className="font-medium text-gray-200 mb-1">Status</h4>
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      project.revival_status === 'buried' ? 'bg-gray-700 text-gray-300' :
-                      project.revival_status === 'reviving' ? 'bg-yellow-900 text-yellow-300' :
-                      'bg-green-900 text-green-300'
-                    }`}>
-                      {project.revival_status === 'buried' ? '⚰️ Buried' :
-                       project.revival_status === 'reviving' ? '🧟 Reviving' :
-                       '✨ Revived'}
-                    </span>
+        {/* Dashboard Header */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          {/* Project Title Card */}
+          <div className="lg:col-span-2">
+            <Card className="bg-gray-800/50 border-gray-700 h-full">
+              <CardHeader className="pb-4">
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl">🪦</div>
+                  <div className="flex-1">
+                    <CardTitle className="text-gray-100 text-xl mb-1">
+                      {project.name}
+                    </CardTitle>
+                    {project.epitaph && (
+                      <CardDescription className="text-gray-300 italic">
+                        "{project.epitaph}"
+                      </CardDescription>
+                    )}
                   </div>
                 </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {project.description && (
+                  <p className="text-gray-300 text-sm line-clamp-3">{project.description}</p>
+                )}
               </CardContent>
             </Card>
+          </div>
+
+          {/* Quick Stats */}
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-gray-100 text-sm">Project Stats</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              <div>
+                <p className="text-xs text-gray-400">Death Date</p>
+                <p className="text-gray-300 text-sm">{formatDate(project.death_date)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Buried</p>
+                <p className="text-gray-300 text-sm">{getTimeAgo(project.created_at)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Status</p>
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                  project.revival_status === 'buried' ? 'bg-gray-700 text-gray-300' :
+                  project.revival_status === 'reviving' ? 'bg-yellow-900 text-yellow-300' :
+                  'bg-green-900 text-green-300'
+                }`}>
+                  {project.revival_status === 'buried' ? '⚰️ Buried' :
+                   project.revival_status === 'reviving' ? '🧟 Reviving' :
+                   '✨ Revived'}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tech & Actions */}
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-gray-100 text-sm">Tech & Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-4">
+              {project.tech_stack.length > 0 && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-2">Tech Stack</p>
+                  <div className="flex flex-wrap gap-1">
+                    {project.tech_stack.map((tech) => (
+                      <span 
+                        key={tech}
+                        className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <p className="text-xs text-gray-400 mb-2">Cause of Death</p>
+                <div className="flex items-center gap-1 text-sm text-gray-300">
+                  {DEATH_CAUSE_EMOJIS[project.death_cause]}
+                  <span className="text-xs">{DEATH_CAUSES[project.death_cause]}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Dashboard Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Post Mortem (smaller) */}
+          <div className="space-y-6">
 
             {/* Post-Mortem Section */}
             <Card className="bg-gray-800/50 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-gray-100 flex items-center gap-2">
-                  📝 Post-Mortem Analysis
+              <CardHeader className="pb-4">
+                <CardTitle className="text-gray-100 flex items-center gap-2 text-lg">
+                  📝 Post-Mortem
                 </CardTitle>
-                <CardDescription className="text-gray-300">
-                  Reflect on what went wrong and what you learned
+                <CardDescription className="text-gray-400 text-sm">
+                  Your reflection & learnings
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 {postMortem ? (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     {postMortem.what_problem && (
-                      <div>
-                        <h4 className="font-medium text-gray-200 mb-2">What problem was this trying to solve?</h4>
-                        <p className="text-gray-300">{postMortem.what_problem}</p>
+                      <div className="border-l-2 border-blue-500 pl-4">
+                        <h4 className="font-medium text-blue-300 mb-2 text-sm uppercase tracking-wide">
+                          Problem Statement
+                        </h4>
+                        <p className="text-gray-300 text-sm leading-relaxed">{postMortem.what_problem}</p>
                       </div>
                     )}
                     {postMortem.what_went_wrong && (
-                      <div>
-                        <h4 className="font-medium text-gray-200 mb-2">What went wrong?</h4>
-                        <p className="text-gray-300">{postMortem.what_went_wrong}</p>
+                      <div className="border-l-2 border-red-500 pl-4">
+                        <h4 className="font-medium text-red-300 mb-2 text-sm uppercase tracking-wide">
+                          What Went Wrong
+                        </h4>
+                        <p className="text-gray-300 text-sm leading-relaxed">{postMortem.what_went_wrong}</p>
                       </div>
                     )}
                     {postMortem.lessons_learned && (
-                      <div>
-                        <h4 className="font-medium text-gray-200 mb-2">What did you learn?</h4>
-                        <p className="text-gray-300">{postMortem.lessons_learned}</p>
+                      <div className="border-l-2 border-green-500 pl-4">
+                        <h4 className="font-medium text-green-300 mb-2 text-sm uppercase tracking-wide">
+                          Lessons Learned
+                        </h4>
+                        <p className="text-gray-300 text-sm leading-relaxed">{postMortem.lessons_learned}</p>
                       </div>
                     )}
-                    <div className="pt-4">
+                    <div className="pt-4 border-t border-gray-700">
                       <Link href={`/graveyard/${params.projectId}/post-mortem`}>
-                        <Button variant="outline">
+                        <Button variant="outline" size="sm" className="text-xs">
                           ✏️ Edit Post-Mortem
                         </Button>
                       </Link>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-4">💭</div>
-                    <h3 className="text-lg font-semibold text-gray-200 mb-2">No post-mortem yet</h3>
-                    <p className="text-gray-400 mb-6">
-                      Take a moment to reflect on this project and extract valuable lessons from its journey.
+                  <div className="text-center py-6">
+                    <div className="text-3xl mb-3">💭</div>
+                    <h3 className="text-base font-semibold text-gray-200 mb-2">No reflection yet</h3>
+                    <p className="text-gray-400 mb-4 text-sm">
+                      Reflect on this project to extract valuable lessons.
                     </p>
                     <Link href={`/graveyard/${params.projectId}/post-mortem`}>
-                      <Button>
+                      <Button size="sm" className="text-sm">
                         📝 Create Post-Mortem
                       </Button>
                     </Link>
@@ -277,53 +307,49 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 )}
               </CardContent>
             </Card>
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
+            {/* Quick Actions */}
             <Card className="bg-gray-800/30 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-gray-100 text-lg">Project Timeline</CardTitle>
+                <CardTitle className="text-gray-100 text-base">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-400">Buried</p>
-                  <p className="text-gray-300">{getTimeAgo(project.created_at)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Last Updated</p>
-                  <p className="text-gray-300">{getTimeAgo(project.updated_at)}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <Card className="bg-gray-800/30 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-gray-100 text-lg">Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                >
+                <Button variant="outline" className="w-full text-sm">
                   🧟 Mark for Revival
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                >
+                <Button variant="outline" className="w-full text-sm">
                   💾 Extract Code Snippets
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                >
+                <Button variant="outline" className="w-full text-sm">
                   📊 View Similar Projects
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Project Timeline */}
+            <Card className="bg-gray-800/30 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-gray-100 text-base">Timeline</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="text-sm text-gray-400">Last Updated</p>
+                  <p className="text-gray-300 text-sm">{getTimeAgo(project.updated_at)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Created</p>
+                  <p className="text-gray-300 text-sm">{getTimeAgo(project.created_at)}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - AI Insights (wider) */}
+          <div className="lg:col-span-2">
+            {/* AI Insights Section - Only show if post-mortem exists */}
+            {postMortem && (
+              <AIInsights project={project} postMortem={postMortem} />
+            )}
           </div>
         </div>
       </div>

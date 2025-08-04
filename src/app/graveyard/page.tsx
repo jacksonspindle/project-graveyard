@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DEATH_CAUSE_EMOJIS, DEATH_CAUSES } from "@/types"
@@ -11,6 +12,7 @@ import type { Project } from "@/types"
 
 export default function GraveyardPage() {
   const { user, loading: authLoading, signOut } = useAuth()
+  const router = useRouter()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -112,6 +114,24 @@ export default function GraveyardPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {/* View Toggle */}
+              <div className="flex items-center bg-gray-800 rounded-lg p-1">
+                <Button
+                  size="sm"
+                  className="bg-gray-700 text-gray-100 hover:bg-gray-600"
+                >
+                  📋 List
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-gray-100 hover:bg-gray-700"
+                  onClick={() => router.push('/graveyard/visual')}
+                >
+                  🪦 Graveyard
+                </Button>
+              </div>
+              
               <Link href="/graveyard/create">
                 <Button>
                   + Bury Project
