@@ -54,9 +54,9 @@ export default function CreateProjectPage() {
 
       console.log("Creating project:", projectData)
       
-      await db.projects.create(projectData)
-      console.log("Project created successfully!")
-      router.push("/graveyard")
+      const newProject = await db.projects.create(projectData)
+      console.log("Project created successfully!", newProject)
+      router.push(`/graveyard/${newProject.id}`)
       
     } catch (err: any) {
       console.error("Error creating project:", err)
