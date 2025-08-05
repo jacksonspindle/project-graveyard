@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Pass 2: Coaching Insights (only if patterns were detected)
-    let coachingInsights = []
+    let coachingInsights: any[] = []
     if (detectedPatterns.length > 0) {
       console.log('🧠 Pass 2: Coaching Insights')
       
