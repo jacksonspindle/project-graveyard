@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DEATH_CAUSE_EMOJIS, DEATH_CAUSES } from "@/types"
@@ -153,9 +154,19 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         {/* Dashboard Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
+          className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8"
+        >
           {/* Project Title Card */}
-          <div className="lg:col-span-2">
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
             <Card className="bg-gray-800/50 border-gray-700 h-full">
               <CardHeader className="pb-4">
                 <div className="flex items-start gap-4">
@@ -178,10 +189,15 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Quick Stats */}
-          <Card className="bg-gray-800/50 border-gray-700">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Card className="bg-gray-800/50 border-gray-700">
             <CardHeader className="pb-3">
               <CardTitle className="text-gray-100 text-sm">Project Stats</CardTitle>
             </CardHeader>
@@ -207,10 +223,16 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 </span>
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </motion.div>
 
           {/* Tech & Actions */}
-          <Card className="bg-gray-800/50 border-gray-700">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <Card className="bg-gray-800/50 border-gray-700">
             <CardHeader className="pb-3">
               <CardTitle className="text-gray-100 text-sm">Tech & Actions</CardTitle>
             </CardHeader>
@@ -238,16 +260,28 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        </div>
+            </Card>
+          </motion.div>
+        </motion.div>
 
         {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, type: "spring", stiffness: 100, damping: 20 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        >
           {/* Left Column - Post Mortem (smaller) */}
-          <div className="space-y-6">
+          <motion.div 
+            className="space-y-6"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
 
             {/* Post-Mortem Section */}
-            <Card className="bg-gray-800/50 border-gray-700">
+            <div>
+              <Card className="bg-gray-800/50 border-gray-700">
               <CardHeader className="pb-4">
                 <CardTitle className="text-gray-100 flex items-center gap-2 text-lg">
                   📝 Post-Mortem
@@ -306,10 +340,12 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   </div>
                 )}
               </CardContent>
-            </Card>
+              </Card>
+            </div>
 
             {/* Quick Actions */}
-            <Card className="bg-gray-800/30 border-gray-700">
+            <div>
+              <Card className="bg-gray-800/30 border-gray-700">
               <CardHeader>
                 <CardTitle className="text-gray-100 text-base">Quick Actions</CardTitle>
               </CardHeader>
@@ -324,10 +360,12 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   📊 View Similar Projects
                 </Button>
               </CardContent>
-            </Card>
+              </Card>
+            </div>
 
             {/* Project Timeline */}
-            <Card className="bg-gray-800/30 border-gray-700">
+            <div>
+              <Card className="bg-gray-800/30 border-gray-700">
               <CardHeader>
                 <CardTitle className="text-gray-100 text-base">Timeline</CardTitle>
               </CardHeader>
@@ -341,17 +379,23 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   <p className="text-gray-300 text-sm">{getTimeAgo(project.created_at)}</p>
                 </div>
               </CardContent>
-            </Card>
-          </div>
+              </Card>
+            </div>
+          </motion.div>
 
           {/* Right Column - AI Insights (wider) */}
-          <div className="lg:col-span-2">
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
             {/* AI Insights Section - Only show if post-mortem exists */}
             {postMortem && (
               <AIInsights project={project} postMortem={postMortem} />
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   )

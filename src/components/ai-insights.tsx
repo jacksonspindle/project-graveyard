@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { INSIGHT_TYPE_LABELS, INSIGHT_TYPE_EMOJIS } from "@/types"
@@ -114,63 +115,103 @@ export function AIInsights({ project, postMortem }: AIInsightsProps) {
   }
 
   return (
-    <Card className="bg-gray-800/50 border-gray-700">
-      <CardHeader>
-        <CardTitle className="text-gray-100 flex items-center gap-2">
-          🤖 AI-Powered Insights
-        </CardTitle>
-        <CardDescription className="text-gray-300">
-          Claude analyzes your post-mortem to provide personalized growth insights
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+    >
+      <Card className="bg-gray-800/50 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-gray-100 flex items-center gap-2">
+            🤖 AI-Powered Insights
+          </CardTitle>
+          <CardDescription className="text-gray-300">
+            Claude analyzes your post-mortem to provide personalized growth insights
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
         {error && (
           <div className="mb-4 p-3 bg-red-900/20 border border-red-800 rounded-md">
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
 
-        {insights.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-4">🤔</div>
-            <h3 className="text-lg font-semibold text-gray-200 mb-2">
-              Ready for AI Analysis?
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Let Claude analyze your post-mortem and provide personalized insights to help you grow as a developer.
-            </p>
-            <Button 
-              onClick={generateInsights}
-              disabled={generating}
-              className="min-w-32"
+        <AnimatePresence mode="wait">
+          {insights.length === 0 ? (
+            <motion.div 
+              key="empty-insights"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="text-center py-8"
             >
-              {generating ? (
-                <>⏳ Generating...</>
-              ) : (
-                <>🔮 Generate Insights</>
-              )}
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {insights.map((insight) => (
-              <InsightCard key={insight.id} insight={insight} />
-            ))}
-            
-            <div className="pt-4 border-t border-gray-700">
+              <div className="text-4xl mb-4">🤔</div>
+              <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                Ready for AI Analysis?
+              </h3>
+              <p className="text-gray-400 mb-6">
+                Let Claude analyze your post-mortem and provide personalized insights to help you grow as a developer.
+              </p>
               <Button 
                 onClick={generateInsights}
                 disabled={generating}
-                variant="outline"
-                size="sm"
+                className="min-w-32"
               >
-                {generating ? 'Regenerating...' : '🔄 Regenerate Insights'}
+                {generating ? (
+                  <>⏳ Generating...</>
+                ) : (
+                  <>🔮 Generate Insights</>
+                )}
               </Button>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="insights-list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              {insights.map((insight, index) => (
+                <motion.div
+                  key={insight.id}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.1,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15
+                  }}
+                >
+                  <InsightCard insight={insight} />
+                </motion.div>
+              ))}
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: insights.length * 0.1 + 0.2 }}
+                className="pt-4 border-t border-gray-700"
+              >
+                <Button 
+                  onClick={generateInsights}
+                  disabled={generating}
+                  variant="outline"
+                  size="sm"
+                >
+                  {generating ? 'Regenerating...' : '🔄 Regenerate Insights'}
+                </Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }
 
@@ -219,7 +260,18 @@ function InsightCard({ insight }: { insight: AIInsight }) {
   const hasStructuredContent = Object.keys(sections).length > 1
 
   return (
-    <div className="border border-gray-600 rounded-lg p-5 bg-gray-900/30">
+    <motion.div 
+      className="border border-gray-600 rounded-lg p-5 bg-gray-900/30 cursor-pointer"
+      whileHover={{ 
+        scale: 1.005,
+        x: 2,
+        transition: { duration: 0.3, type: "spring", stiffness: 200, damping: 20 }
+      }}
+      transition={{
+        scale: { duration: 0.12, ease: "easeOut" },
+        x: { duration: 0.12, ease: "easeOut" }
+      }}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="text-lg">{emoji}</span>
@@ -273,27 +325,31 @@ function InsightCard({ insight }: { insight: AIInsight }) {
             ) : (
               <>
                 <p className="whitespace-pre-line">{insight.content.slice(0, 300)}...</p>
-                <button
+                <motion.button
                   onClick={() => setExpanded(true)}
                   className="text-blue-400 hover:text-blue-300 mt-2 text-xs"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   Read more
-                </button>
+                </motion.button>
               </>
             )}
             
             {expanded && insight.content.length > 300 && (
-              <button
+              <motion.button
                 onClick={() => setExpanded(false)}
                 className="text-blue-400 hover:text-blue-300 mt-2 text-xs block"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Show less
-              </button>
+              </motion.button>
             )}
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 

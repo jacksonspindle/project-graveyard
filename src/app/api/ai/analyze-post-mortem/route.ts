@@ -121,9 +121,46 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate AI insights
-    console.log('API: Calling Claude API...')
+    // Get user patterns for enhanced AI insights
+    let userPatterns = []
+    let learningVelocity = null
+    try {
+      const { data: patternsData } = await supabaseServer
+        .from('user_patterns')
+        .select('*')
+        .eq('user_id', project.user_id)
+        .eq('is_active', true)
+        .order('confidence_score', { ascending: false })
+      
+      userPatterns = patternsData || []
+
+      const { data: metricsData } = await supabaseServer
+        .from('user_learning_metrics')
+        .select('*')
+        .eq('user_id', project.user_id)
+        .order('measurement_date', { ascending: false })
+        .limit(3)
+
+      if (metricsData && metricsData.length > 0) {
+        const avgLifespan = metricsData.find(m => m.metric_name === 'avg_project_lifespan')
+        const scopeScore = metricsData.find(m => m.metric_name === 'scope_management_score')
+        const techScore = metricsData.find(m => m.metric_name === 'technology_consistency_score')
+        
+        learningVelocity = {
+          avg_project_lifespan_trend: avgLifespan?.trend || 'stable',
+          scope_management_score: scopeScore?.metric_value || 50,
+          technology_consistency_score: techScore?.metric_value || 30,
+          completion_rate_trend: 'stable'
+        }
+      }
+    } catch (error) {
+      console.log('API: Error fetching pattern data:', error)
+    }
+
+    // Generate AI insights with pattern awareness
+    console.log('API: Calling Claude API with pattern data...')
     console.log('API: Anthropic API key exists:', !!process.env.ANTHROPIC_API_KEY)
+    console.log('API: User patterns found:', userPatterns.length)
     
     const insights = await analyzePostMortem({
       projectName: project.name,
@@ -134,6 +171,16 @@ export async function POST(request: NextRequest) {
       whatWentWrong: postMortem.what_went_wrong,
       lessonsLearned: postMortem.lessons_learned,
       projectHistory,
+      userPatterns: userPatterns?.map(p => ({
+        pattern_name: p.pattern_name,
+        pattern_type: p.pattern_type,
+        frequency: p.frequency,
+        confidence_score: p.confidence_score || 0,
+        metadata: p.pattern_value || {}
+      })),
+      learningVelocity: learningVelocity || undefined,
+      projectCount: allProjects?.length || 0,
+      isFirstProject: (allProjects?.length || 0) === 1
     })
     
     console.log('API: Claude returned insights:', insights.length)
