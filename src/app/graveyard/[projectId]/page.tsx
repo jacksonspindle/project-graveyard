@@ -390,9 +390,43 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            {/* AI Insights Section - Only show if post-mortem exists */}
-            {postMortem && (
+            {/* AI Insights Section */}
+            {postMortem ? (
               <AIInsights project={project} postMortem={postMortem} />
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="bg-gray-800/50 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-gray-100 flex items-center gap-2">
+                      🤖 AI-Powered Insights
+                    </CardTitle>
+                    <CardDescription className="text-gray-300">
+                      Claude analyzes your post-mortem to provide personalized growth insights
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">💭</div>
+                      <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                        Create a Post-Mortem to Unlock AI Insights
+                      </h3>
+                      <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+                        Reflect on your project's journey first. Then Claude will analyze your 
+                        reflections to provide personalized coaching and pattern recognition.
+                      </p>
+                      <Link href={`/graveyard/${params.projectId}/post-mortem`}>
+                        <Button size="sm" className="text-sm">
+                          📝 Create Post-Mortem
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
           </motion.div>
         </motion.div>
