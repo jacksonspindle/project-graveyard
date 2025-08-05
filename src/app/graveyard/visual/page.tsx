@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { db } from "@/lib/supabase"
@@ -61,9 +62,13 @@ export default function VisualGraveyardPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-100">Visual Graveyard</h1>
-              <p className="text-sm text-gray-400">
-                {projects.length} projects rest here • Signed in as {user?.email}
+              <h1 className="text-2xl font-bold text-gray-100">Your Graveyard</h1>
+              <p className="text-gray-400">
+                {loading ? "Loading..." : `${projects.length} projects rest here`}
+                {error && <span className="text-yellow-400 ml-2">({error})</span>}
+              </p>
+              <p className="text-sm text-gray-500">
+                Signed in as {user?.email}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -85,6 +90,11 @@ export default function VisualGraveyardPage() {
                 </Button>
               </div>
               
+              <Link href="/graveyard/create">
+                <Button>
+                  + Bury Project
+                </Button>
+              </Link>
               <Button 
                 variant="outline" 
                 onClick={() => signOut()}
@@ -97,7 +107,7 @@ export default function VisualGraveyardPage() {
       </div>
 
       {/* Main Content */}
-      <div className="h-[calc(100vh-120px)]">
+      <div className="h-[calc(100vh-88px)]">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
