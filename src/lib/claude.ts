@@ -443,7 +443,7 @@ Focus ONLY on pattern identification. No coaching advice or recommendations.`
 
   } catch (error) {
     console.error('❌ Error calling Claude for pattern detection:', error)
-    throw new Error('Failed to detect patterns with Claude: ' + error.message)
+    throw new Error('Failed to detect patterns with Claude: ' + (error instanceof Error ? error.message : String(error)))
   }
 }
 
