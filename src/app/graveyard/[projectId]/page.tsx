@@ -197,7 +197,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gray-800/50 border-gray-700 h-full">
             <CardHeader className="pb-3">
               <CardTitle className="text-gray-100 text-sm">Project Stats</CardTitle>
             </CardHeader>
@@ -232,7 +232,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gray-800/50 border-gray-700 h-full">
             <CardHeader className="pb-3">
               <CardTitle className="text-gray-100 text-sm">Tech & Actions</CardTitle>
             </CardHeader>

@@ -133,14 +133,14 @@ export function PatternDashboard({ userId, projectCount, onDataStatusChange, ext
     )
   }
 
-  if (projectCount < 3) {
+  if (projectCount < 2) {
     return (
       <Card className="bg-gray-800/30 border-gray-700">
         <CardHeader className="text-center">
           <div className="text-4xl mb-2">🧠</div>
           <CardTitle className="text-gray-100">Pattern Recognition Loading...</CardTitle>
           <CardDescription className="text-gray-400">
-            Bury {3 - projectCount} more project{3 - projectCount === 1 ? '' : 's'} to unlock intelligent pattern detection and personalized insights
+            Bury {2 - projectCount} more project{2 - projectCount === 1 ? '' : 's'} to unlock intelligent pattern detection and personalized insights
           </CardDescription>
         </CardHeader>
       </Card>

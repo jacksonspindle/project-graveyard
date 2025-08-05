@@ -21,6 +21,7 @@ export default function GraveyardPage() {
   const [hasExistingAnalysis, setHasExistingAnalysis] = useState(false)
   const [clearingInsights, setClearingInsights] = useState(false)
   const [dashboardData, setDashboardData] = useState({ patterns: [], insights: [], metrics: [] })
+  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   // Mock data fallback
   const mockProjects = [
@@ -181,6 +182,40 @@ export default function GraveyardPage() {
       }
     } catch (error) {
       console.error('Error refreshing dashboard data:', error)
+    }
+  }
+
+  const debugProjectCount = async () => {
+    if (!user) return
+    
+    try {
+      console.log('🔍 Checking actual project count in database...')
+      
+      // Use the same query that the pattern analysis uses
+      const allProjects = await db.projects.getAll(user.id)
+      
+      const debugData = {
+        userId: user.id,
+        totalProjects: allProjects.length,
+        visibleInUI: projects.length,
+        projects: allProjects.map((p, i) => ({
+          index: i + 1,
+          id: p.id,
+          name: p.name,
+          created_at: p.created_at,
+          death_date: p.death_date,
+          death_cause: p.death_cause
+        }))
+      }
+      
+      setDebugInfo(debugData)
+      console.log('🔍 Database project count debug:', debugData)
+      
+      alert(`Database has ${debugData.totalProjects} projects, UI shows ${debugData.visibleInUI}. Check console for details.`)
+      
+    } catch (error) {
+      console.error('Error debugging project count:', error)
+      alert('Error checking project count. Check console for details.')
     }
   }
 
@@ -399,6 +434,14 @@ export default function GraveyardPage() {
                     🧹 Clear Insights
                   </>
                 )}
+              </Button>
+              
+              <Button 
+                onClick={debugProjectCount}
+                variant="outline"
+                className="bg-gray-800/50 border-yellow-500/50 text-yellow-300 hover:bg-yellow-600/20 hover:border-yellow-500 px-4 py-2 text-sm"
+              >
+                🔍 Debug Count
               </Button>
             </div>
           </div>

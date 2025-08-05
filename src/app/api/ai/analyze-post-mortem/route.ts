@@ -157,10 +157,15 @@ export async function POST(request: NextRequest) {
       console.log('API: Error fetching pattern data:', error)
     }
 
+    // Calculate the chronological position of this project
+    const projectIndex = allProjects?.findIndex(p => p.id === projectId) ?? -1
+    const chronologicalPosition = projectIndex >= 0 ? projectIndex + 1 : 1
+    
     // Generate AI insights with pattern awareness
     console.log('API: Calling Claude API with pattern data...')
     console.log('API: Anthropic API key exists:', !!process.env.ANTHROPIC_API_KEY)
     console.log('API: User patterns found:', userPatterns.length)
+    console.log('API: Project chronological position:', chronologicalPosition, 'of', allProjects?.length || 0)
     
     const insights = await analyzePostMortem({
       projectName: project.name,
@@ -180,6 +185,7 @@ export async function POST(request: NextRequest) {
       })),
       learningVelocity: learningVelocity || undefined,
       projectCount: allProjects?.length || 0,
+      projectPosition: chronologicalPosition,
       isFirstProject: (allProjects?.length || 0) === 1
     })
     

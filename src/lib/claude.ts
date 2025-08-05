@@ -57,6 +57,7 @@ export interface PostMortemAnalysisInput {
     completion_rate_trend: string
   }
   projectCount?: number
+  projectPosition?: number
   isFirstProject?: boolean
 }
 
@@ -112,6 +113,7 @@ function buildPostMortemAnalysisPrompt(input: PostMortemAnalysisInput): string {
     userPatterns = [],
     learningVelocity,
     projectCount = 0,
+    projectPosition = 1,
     isFirstProject = false
   } = input
 
@@ -154,7 +156,7 @@ Name: "${projectName}"
 Description: ${projectDescription || 'No description provided'}
 Death Cause: ${deathCause.replace('_', ' ')}
 Tech Stack: ${techStack.join(', ') || 'Not specified'}
-Project #${projectCount + 1} in their graveyard
+Project #${projectPosition} of ${projectCount} in their graveyard
 
 **DEVELOPER'S POST-MORTEM ANALYSIS:**
 

@@ -221,6 +221,21 @@ function InsightCard({ insight }: { insight: AIInsight }) {
   const emoji = INSIGHT_TYPE_EMOJIS[insight.insight_type]
   const label = INSIGHT_TYPE_LABELS[insight.insight_type]
 
+  // Convert technical pattern names to human-readable format
+  const humanizePatternName = (text: string) => {
+    return text.replace(/([A-Z_]+)/g, (match) => {
+      // Check if it's all caps with underscores (pattern name)
+      if (match.length > 3 && match.includes('_') && match === match.toUpperCase()) {
+        return match
+          .toLowerCase()
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      }
+      return match
+    })
+  }
+
   // Parse structured content
   const parseStructuredContent = (content: string) => {
     const lines = content.split('\n').filter(line => line.trim())
@@ -256,7 +271,8 @@ function InsightCard({ insight }: { insight: AIInsight }) {
     return sections
   }
 
-  const sections = parseStructuredContent(insight.content)
+  const humanizedContent = humanizePatternName(insight.content)
+  const sections = parseStructuredContent(humanizedContent)
   const hasStructuredContent = Object.keys(sections).length > 1
 
   return (
@@ -306,12 +322,23 @@ function InsightCard({ insight }: { insight: AIInsight }) {
                         ))}
                       </ol>
                     </div>
+                  ) : value.includes(' - ') && (value.match(/ - /g) || []).length >= 2 ? (
+                    // Handle hyphen-separated lists (like "item1 - item2 - item3")
+                    <div className="my-4">
+                      <ul className="list-disc list-inside space-y-2">
+                        {value.split(' - ').map((item, idx) => (
+                          <li key={idx} className="text-gray-300">
+                            {item.trim()}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ) : value.startsWith('"') && value.endsWith('"') ? (
                     <blockquote className="italic text-blue-300 border-l-2 border-blue-500 pl-3">
                       {value}
                     </blockquote>
                   ) : (
-                    <p className="text-gray-300">{value}</p>
+                    <div className="text-gray-300 whitespace-pre-line">{value}</div>
                   )}
                 </div>
               </div>
@@ -320,11 +347,11 @@ function InsightCard({ insight }: { insight: AIInsight }) {
         ) : (
           // Fallback for unstructured content
           <>
-            {expanded || insight.content.length <= 300 ? (
-              <p className="whitespace-pre-line">{insight.content}</p>
+            {expanded || humanizedContent.length <= 300 ? (
+              <p className="whitespace-pre-line">{humanizedContent}</p>
             ) : (
               <>
-                <p className="whitespace-pre-line">{insight.content.slice(0, 300)}...</p>
+                <p className="whitespace-pre-line">{humanizedContent.slice(0, 300)}...</p>
                 <motion.button
                   onClick={() => setExpanded(true)}
                   className="text-blue-400 hover:text-blue-300 mt-2 text-xs"
@@ -336,7 +363,7 @@ function InsightCard({ insight }: { insight: AIInsight }) {
               </>
             )}
             
-            {expanded && insight.content.length > 300 && (
+            {expanded && humanizedContent.length > 300 && (
               <motion.button
                 onClick={() => setExpanded(false)}
                 className="text-blue-400 hover:text-blue-300 mt-2 text-xs block"
