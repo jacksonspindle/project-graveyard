@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { INSIGHT_TYPE_LABELS, INSIGHT_TYPE_EMOJIS } from "@/types"
 import type { AIInsight, Project, PostMortem } from "@/types"
 import { db } from "@/lib/supabase"
+import { PinInsightButton, usePinStatus } from "@/components/pin-insight-button"
 
 interface AIInsightsProps {
   project: Project
@@ -187,7 +188,7 @@ export function AIInsights({ project, postMortem }: AIInsightsProps) {
                     damping: 15
                   }}
                 >
-                  <InsightCard insight={insight} />
+                  <InsightCard insight={insight} project={project} />
                 </motion.div>
               ))}
               
@@ -215,8 +216,9 @@ export function AIInsights({ project, postMortem }: AIInsightsProps) {
   )
 }
 
-function InsightCard({ insight }: { insight: AIInsight }) {
+function InsightCard({ insight, project }: { insight: AIInsight, project: Project }) {
   const [expanded, setExpanded] = useState(false)
+  const { isPinned, isLoading, refreshPinStatus } = usePinStatus(insight.id, 'project_specific')
   
   const emoji = INSIGHT_TYPE_EMOJIS[insight.insight_type]
   const label = INSIGHT_TYPE_LABELS[insight.insight_type]
@@ -293,11 +295,26 @@ function InsightCard({ insight }: { insight: AIInsight }) {
           <span className="text-lg">{emoji}</span>
           <h4 className="font-medium text-gray-200">{label}</h4>
         </div>
-        {insight.confidence_score && (
-          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
-            {Math.round(insight.confidence_score * 100)}% confidence
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {insight.confidence_score && (
+            <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+              {Math.round(insight.confidence_score * 100)}% confidence
+            </span>
+          )}
+          <PinInsightButton
+            insightId={insight.id}
+            insightType="project_specific"
+            projectId={insight.project_id}
+            isPinned={isPinned}
+            onPinChange={refreshPinStatus}
+            size="sm"
+            insightContent={insight.content}
+            insightTypeCategory={insight.insight_type}
+            confidenceScore={insight.confidence_score}
+            projectName={project.name}
+            projectEpitaph={project.epitaph}
+          />
+        </div>
       </div>
       
       <div className="text-gray-300 text-sm leading-relaxed">

@@ -135,6 +135,11 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/graveyard/insights">
+                <Button variant="outline" className="border-red-500/50 text-red-300 hover:bg-red-500/10">
+                  📌 My Insights
+                </Button>
+              </Link>
               <Link href={`/graveyard/${params.projectId}/edit`}>
                 <Button variant="outline">
                   ✏️ Edit

@@ -265,12 +265,17 @@ export default function GraveyardPage() {
                 </Button>
               </div>
               
+              <Link href="/graveyard/insights">
+                <Button variant="outline" className="border-red-500/50 text-red-300 hover:bg-red-500/10">
+                  📌 My Insights
+                </Button>
+              </Link>
+              
               <Link href="/graveyard/create">
                 <Button className="bg-gray-700 hover:bg-gray-600 text-gray-100 border-gray-600">
                   + Bury Project
                 </Button>
               </Link>
-              
               
               <Button 
                 variant="outline" 

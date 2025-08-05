@@ -389,6 +389,83 @@ export const db = {
     }
   },
 
+  pinnedInsights: {
+    async getByUserId(userId: string) {
+      const { data, error } = await supabase
+        .from('pinned_insights')
+        .select(`
+          *,
+          ai_insight:ai_insights(*),
+          project:projects(id, name, epitaph, death_date),
+          pattern_insight:pattern_insights(*)
+        `)
+        .eq('user_id', userId)
+        .order('pinned_at', { ascending: false })
+      
+      if (error) throw error
+      return data
+    },
+
+    async pin(insight: {
+      user_id: string
+      insight_type: 'project_specific' | 'pattern_analysis'
+      ai_insight_id?: string
+      project_id?: string
+      pattern_insight_id?: string
+      notes?: string
+      // New fields to store exact content at time of pinning
+      pinned_content?: string
+      pinned_insight_type?: string
+      pinned_confidence_score?: number
+      project_name?: string
+      project_epitaph?: string
+    }) {
+      const { data, error } = await supabase
+        .from('pinned_insights')
+        .insert([insight])
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    },
+
+    async unpin(pinnedInsightId: string) {
+      const { error } = await supabase
+        .from('pinned_insights')
+        .delete()
+        .eq('id', pinnedInsightId)
+      
+      if (error) throw error
+    },
+
+    async isPinned(userId: string, insightId: string, type: 'project_specific' | 'pattern_analysis') {
+      const column = type === 'project_specific' ? 'ai_insight_id' : 'pattern_insight_id'
+      
+      const { data, error } = await supabase
+        .from('pinned_insights')
+        .select('id')
+        .eq('user_id', userId)
+        .eq(column, insightId)
+        .maybeSingle()
+      
+      if (error) throw error
+      return !!data
+    },
+
+    async updateNotes(pinnedInsightId: string, notes: string) {
+      const { data, error } = await supabase
+        .from('pinned_insights')
+        .update({ notes })
+        .eq('id', pinnedInsightId)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    }
+  },
+
   auth: {
     async signUp(email: string, password: string) {
       const { data, error } = await supabase.auth.signUp({

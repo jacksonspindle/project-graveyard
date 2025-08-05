@@ -204,6 +204,30 @@ export interface PatternTrigger {
   updated_at: string
 }
 
+export interface PinnedInsight {
+  id: string
+  user_id: string
+  insight_type: 'project_specific' | 'pattern_analysis'
+  ai_insight_id?: string
+  project_id?: string
+  pattern_insight_id?: string
+  pinned_at: string
+  notes?: string
+  created_at: string
+  
+  // Exact content stored at time of pinning (preserves original text)
+  pinned_content?: string
+  pinned_insight_type?: string
+  pinned_confidence_score?: number
+  project_name?: string
+  project_epitaph?: string
+  
+  // Populated joins for display (may be outdated if regenerated)
+  ai_insight?: AIInsight
+  project?: Project
+  pattern_insight?: PatternInsight
+}
+
 // Pattern Analysis Results
 export interface PatternAnalysis {
   pattern_name: PatternName
