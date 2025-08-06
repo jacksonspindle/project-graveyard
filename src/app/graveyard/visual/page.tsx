@@ -1,16 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { db } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import type { Project } from "@/types"
 import { VisualGraveyard } from "@/components/visual-graveyard"
+import { GraveyardHeader } from "@/components/graveyard-header"
+import { Button } from "@/components/ui/button"
 
 export default function VisualGraveyardPage() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,54 +57,12 @@ export default function VisualGraveyardPage() {
 
   return (
     <div className="min-h-screen graveyard-bg">
-      {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-900/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-100">Your Graveyard</h1>
-              <p className="text-gray-400">
-                {loading ? "Loading..." : `${projects.length} projects rest here`}
-                {error && <span className="text-yellow-400 ml-2">({error})</span>}
-              </p>
-              <p className="text-sm text-gray-500">
-                Signed in as {user?.email}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* View Toggle */}
-              <div className="flex items-center bg-gray-800 rounded-lg p-1">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-gray-400 hover:text-gray-100 hover:bg-gray-700"
-                  onClick={() => router.push('/graveyard')}
-                >
-                  📋 List
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-gray-700 text-gray-100 hover:bg-gray-600"
-                >
-                  🪦 Graveyard
-                </Button>
-              </div>
-              
-              <Link href="/graveyard/create">
-                <Button>
-                  + Bury Project
-                </Button>
-              </Link>
-              <Button 
-                variant="outline" 
-                onClick={() => signOut()}
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Unified Header Component */}
+      <GraveyardHeader 
+        projectCount={projects.length}
+        loading={loading}
+        error={error}
+      />
 
       {/* Main Content */}
       <div className="h-[calc(100vh-88px)]">

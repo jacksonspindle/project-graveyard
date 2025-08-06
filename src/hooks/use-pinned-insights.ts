@@ -189,7 +189,7 @@ export function usePinStatus(insightId: string, insightType: 'project_specific' 
 
   useEffect(() => {
     checkPinStatus()
-  }, [checkPinStatus])
+  }, [user?.id, insightId, insightType]) // ✅ Direct dependencies
 
   const refreshPinStatus = useCallback(() => {
     checkPinStatus()

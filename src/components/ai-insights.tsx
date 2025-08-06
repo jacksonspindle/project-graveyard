@@ -7,7 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { INSIGHT_TYPE_LABELS, INSIGHT_TYPE_EMOJIS } from "@/types"
 import type { AIInsight, Project, PostMortem } from "@/types"
 import { db } from "@/lib/supabase"
-import { PinInsightButton, usePinStatus } from "@/components/pin-insight-button"
+import { PinInsightButton } from "@/components/pin-insight-button"
+import { usePinStatus } from "@/hooks/use-pinned-insights"
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface AIInsightsProps {
   project: Project
@@ -116,11 +123,12 @@ export function AIInsights({ project, postMortem }: AIInsightsProps) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-    >
+    <TooltipProvider>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
       <Card className="bg-gray-800/50 border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-100 flex items-center gap-2">
@@ -213,6 +221,7 @@ export function AIInsights({ project, postMortem }: AIInsightsProps) {
         </CardContent>
       </Card>
     </motion.div>
+    </TooltipProvider>
   )
 }
 
@@ -297,9 +306,21 @@ function InsightCard({ insight, project }: { insight: AIInsight, project: Projec
         </div>
         <div className="flex items-center gap-2">
           {insight.confidence_score && (
-            <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
-              {Math.round(insight.confidence_score * 100)}% confidence
-            </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded cursor-help">
+                  {Math.round(insight.confidence_score * 100)}% confidence
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm bg-gray-800 border-gray-600">
+                <div className="space-y-1">
+                  <p className="font-medium text-gray-100 text-xs">AI Confidence Score</p>
+                  <p className="text-xs text-gray-300">
+                    This percentage indicates how confident the AI is about this project-specific insight based on your post-mortem analysis and project details.
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           )}
           <PinInsightButton
             insightId={insight.id}

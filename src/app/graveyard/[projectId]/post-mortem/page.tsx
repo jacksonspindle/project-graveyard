@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { db } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import type { Project, PostMortem } from "@/types"
+import { GraveyardHeader } from "@/components/graveyard-header"
 
 interface PostMortemPageProps {
   params: {
@@ -149,27 +150,19 @@ export default function PostMortemPage({ params }: PostMortemPageProps) {
 
   return (
     <div className="min-h-screen graveyard-bg">
-      {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-900/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href={`/graveyard/${params.projectId}`}>
-                <Button variant="outline">
-                  ← Back to Project
-                </Button>  
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-100">
-                  {postMortem ? "Edit Post-Mortem" : "Create Post-Mortem"}
-                </h1>
-                <p className="text-gray-400">
-                  Reflect on "{project.name}"
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Unified Header Component */}
+      <GraveyardHeader 
+        title={postMortem ? "📝 Edit Post-Mortem" : "📝 Create Post-Mortem"}
+        subtitle={`Reflect on "${project.name}"`}
+      />
+      
+      {/* Back Button Below Header */}
+      <div className="container mx-auto px-4 py-4">
+        <Link href={`/graveyard/${params.projectId}`}>
+          <Button variant="outline" size="sm">
+            ← Back to Project
+          </Button>
+        </Link>
       </div>
 
       {/* Form */}

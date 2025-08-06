@@ -9,6 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useAuth } from "@/lib/auth-context"
 import { db } from "@/lib/supabase"
 import { INSIGHT_TYPE_LABELS, INSIGHT_TYPE_EMOJIS } from "@/types"
@@ -174,26 +180,28 @@ export function PinnedInsightsDashboard({ className = "" }: PinnedInsightsDashbo
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-            <Pin className="fill-blue-500 text-blue-500" size={24} />
+      {/* Header - Mobile Responsive */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-100 flex items-center gap-2">
+            <Pin className="fill-blue-500 text-blue-500" size={20} />
             My Pinned Insights
           </h1>
           <p className="text-gray-400 text-sm">
             Your personal collection of valuable AI-generated insights
           </p>
         </div>
-        <Badge variant="outline" className="bg-gray-700/50 text-gray-200">
-          {pinnedInsights.length} pinned
-        </Badge>
+        <div className="flex-shrink-0">
+          <Badge variant="outline" className="bg-gray-700/50 text-gray-200">
+            {pinnedInsights.length} pinned
+          </Badge>
+        </div>
       </div>
 
-      {/* Search and Filter */}
+      {/* Search and Filter - Mobile Responsive */}
       <Card className="bg-gray-800/30 border-gray-700">
         <CardContent className="p-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-3 text-gray-400" />
               <Input
@@ -203,36 +211,41 @@ export function PinnedInsightsDashboard({ className = "" }: PinnedInsightsDashbo
                 className="pl-10 bg-gray-900/50 border-gray-600 text-gray-100"
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:flex-shrink-0">
               <Filter size={16} className="text-gray-400" />
-              <span className="text-sm text-gray-400">Filter:</span>
+              <span className="text-sm text-gray-400 whitespace-nowrap">Filter:</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabs */}
+      {/* Tabs - Mobile Responsive */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-gray-800 border-gray-700">
-          <TabsTrigger 
-            value="all" 
-            className="data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100"
-          >
-            All ({pinnedInsights.length})
-          </TabsTrigger>
-          <TabsTrigger 
-            value="project"
-            className="data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100"
-          >
-            Project Insights ({projectInsights.length})
-          </TabsTrigger>
-          <TabsTrigger 
-            value="pattern"
-            className="data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100"
-          >
-            Pattern Analysis ({patternInsights.length})
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="bg-gray-800 border-gray-700 w-full min-w-max">
+            <TabsTrigger 
+              value="all" 
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100 flex-shrink-0 text-sm"
+            >
+              <span className="hidden sm:inline">All ({pinnedInsights.length})</span>
+              <span className="sm:hidden">All ({pinnedInsights.length})</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="project"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100 flex-shrink-0 text-sm"
+            >
+              <span className="hidden sm:inline">Project Insights ({projectInsights.length})</span>
+              <span className="sm:hidden">Projects ({projectInsights.length})</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="pattern"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100 flex-shrink-0 text-sm"
+            >
+              <span className="hidden sm:inline">Pattern Analysis ({patternInsights.length})</span>
+              <span className="sm:hidden">Patterns ({patternInsights.length})</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value={activeTab} className="mt-6">
           <AnimatePresence mode="wait">
@@ -327,38 +340,83 @@ function PinnedInsightCard({
     >
       <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div>
-                {isProjectInsight ? (
-                  <>
-                    <span className="text-lg">
-                      {insightType && INSIGHT_TYPE_EMOJIS[insightType as keyof typeof INSIGHT_TYPE_EMOJIS] || '💡'}
-                    </span>
-                    <Badge variant="outline" className="ml-2 text-xs bg-blue-900/20 border-blue-500 text-blue-200">
-                      From Project: {insight.project?.name}
-                    </Badge>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-lg">
-                      {insightType === 'warning' ? '⚠️' :
-                       insightType === 'recommendation' ? '💡' :
-                       insightType === 'observation' ? '🔍' : '🎯'}
-                    </span>
-                    <Badge variant="outline" className="ml-2 text-xs bg-purple-900/20 border-purple-500 text-purple-200">
-                      Pattern Analysis
-                    </Badge>
-                  </>
+          {/* Desktop Layout */}
+          <div className="hidden sm:block">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div>
+                  {isProjectInsight ? (
+                    <>
+                      <span className="text-lg">
+                        {insightType && INSIGHT_TYPE_EMOJIS[insightType as keyof typeof INSIGHT_TYPE_EMOJIS] || '💡'}
+                      </span>
+                      <Badge variant="outline" className="ml-2 text-xs bg-blue-900/20 border-blue-500 text-blue-200">
+                        From Project: {insight.project?.name}
+                      </Badge>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg">
+                        {insightType === 'warning' ? '⚠️' :
+                         insightType === 'recommendation' ? '💡' :
+                         insightType === 'observation' ? '🔍' : '🎯'}
+                      </span>
+                      <Badge variant="outline" className="ml-2 text-xs bg-purple-900/20 border-purple-500 text-purple-200">
+                        Pattern Analysis
+                      </Badge>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {confidence && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="text-xs bg-gray-700/50 border-gray-500 text-gray-200 cursor-help">
+                        {Math.round(confidence * 100)}%
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="max-w-sm bg-gray-800 border-gray-600">
+                      <div className="space-y-1">
+                        <p className="font-medium text-gray-100 text-xs">AI Confidence Score</p>
+                        <p className="text-xs text-gray-300">
+                          This percentage indicates how confident the AI is about this insight based on the strength of evidence from your project data and behavioral patterns.
+                        </p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onUnpin(insight.id)}
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                >
+                  <Trash2 size={14} />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {confidence && (
-                <Badge variant="outline" className="text-xs bg-gray-700/50 border-gray-500 text-gray-200">
-                  {Math.round(confidence * 100)}%
-                </Badge>
-              )}
+            <div className="text-xs text-gray-500">
+              Pinned {new Date(insight.pinned_at).toLocaleDateString()}
+            </div>
+          </div>
+
+          {/* Mobile Layout - Stacked */}
+          <div className="sm:hidden">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">
+                  {isProjectInsight 
+                    ? (insightType && INSIGHT_TYPE_EMOJIS[insightType as keyof typeof INSIGHT_TYPE_EMOJIS] || '💡')
+                    : (insightType === 'warning' ? '⚠️' :
+                       insightType === 'recommendation' ? '💡' :
+                       insightType === 'observation' ? '🔍' : '🎯')
+                  }
+                </span>
+                <span className="text-xs text-gray-500">
+                  Pinned {new Date(insight.pinned_at).toLocaleDateString()}
+                </span>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -368,9 +426,34 @@ function PinnedInsightCard({
                 <Trash2 size={14} />
               </Button>
             </div>
-          </div>
-          <div className="text-xs text-gray-500">
-            Pinned {new Date(insight.pinned_at).toLocaleDateString()}
+            <div className="flex flex-wrap gap-2">
+              {isProjectInsight ? (
+                <Badge variant="outline" className="text-xs bg-blue-900/20 border-blue-500 text-blue-200">
+                  From Project: {insight.project?.name}
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs bg-purple-900/20 border-purple-500 text-purple-200">
+                  Pattern Analysis
+                </Badge>
+              )}
+              {confidence && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="text-xs bg-gray-700/50 border-gray-500 text-gray-200 cursor-help">
+                      {Math.round(confidence * 100)}%
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" align="center" className="max-w-sm bg-gray-800 border-gray-600">
+                    <div className="space-y-1">
+                      <p className="font-medium text-gray-100 text-xs">AI Confidence Score</p>
+                      <p className="text-xs text-gray-300">
+                        This percentage indicates how confident the AI is about this insight based on the strength of evidence from your project data and behavioral patterns.
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>

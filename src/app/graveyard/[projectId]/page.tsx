@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-context"
 import type { Project, PostMortem } from "@/types"
 import { formatDate, getTimeAgo } from "@/lib/utils"
 import { AIInsights } from "@/components/ai-insights"
+import { GraveyardHeader } from "@/components/graveyard-header"
 
 interface ProjectDetailPageProps {
   params: {
@@ -117,41 +118,33 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   return (
     <div className="min-h-screen graveyard-bg">
-      {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-900/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/graveyard">
-                <Button variant="outline">
-                  ← Back to Graveyard
-                </Button>  
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-100">{project.name}</h1>
-                <p className="text-gray-400">
-                  Died {formatDate(project.death_date)} ({getTimeAgo(project.death_date)})
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/graveyard/insights">
-                <Button variant="outline" className="border-red-500/50 text-red-300 hover:bg-red-500/10">
-                  📌 My Insights
-                </Button>
-              </Link>
-              <Link href={`/graveyard/${params.projectId}/edit`}>
-                <Button variant="outline">
-                  ✏️ Edit
-                </Button>
-              </Link>
-              <Button 
-                variant="destructive"
-                onClick={handleDelete}
-              >
-                🗑️ Delete
+      {/* Unified Header Component */}
+      <GraveyardHeader 
+        title={`🪦 ${project.name}`}
+        subtitle={`Died ${formatDate(project.death_date)} (${getTimeAgo(project.death_date)})`}
+      />
+      
+      {/* Project Actions Below Header */}
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <Link href="/graveyard">
+            <Button variant="outline" size="sm">
+              ← Back to Graveyard
+            </Button>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link href={`/graveyard/${params.projectId}/edit`}>
+              <Button variant="outline" size="sm">
+                ✏️ Edit
               </Button>
-            </div>
+            </Link>
+            <Button 
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+            >
+              🗑️ Delete
+            </Button>
           </div>
         </div>
       </div>

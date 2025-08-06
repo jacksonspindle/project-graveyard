@@ -9,10 +9,11 @@ import { DEATH_CAUSE_EMOJIS, DEATH_CAUSES } from "@/types"
 import { db } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { PatternDashboard } from "@/components/pattern-dashboard"
+import { GraveyardHeader } from "@/components/graveyard-header"
 import type { Project } from "@/types"
 
 export default function GraveyardPage() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,7 +22,6 @@ export default function GraveyardPage() {
   const [hasExistingAnalysis, setHasExistingAnalysis] = useState(false)
   const [clearingInsights, setClearingInsights] = useState(false)
   const [dashboardData, setDashboardData] = useState({ patterns: [], insights: [], metrics: [] })
-  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   // Mock data fallback
   const mockProjects = [
@@ -185,39 +185,6 @@ export default function GraveyardPage() {
     }
   }
 
-  const debugProjectCount = async () => {
-    if (!user) return
-    
-    try {
-      console.log('🔍 Checking actual project count in database...')
-      
-      // Use the same query that the pattern analysis uses
-      const allProjects = await db.projects.getAll(user.id)
-      
-      const debugData = {
-        userId: user.id,
-        totalProjects: allProjects.length,
-        visibleInUI: projects.length,
-        projects: allProjects.map((p, i) => ({
-          index: i + 1,
-          id: p.id,
-          name: p.name,
-          created_at: p.created_at,
-          death_date: p.death_date,
-          death_cause: p.death_cause
-        }))
-      }
-      
-      setDebugInfo(debugData)
-      console.log('🔍 Database project count debug:', debugData)
-      
-      alert(`Database has ${debugData.totalProjects} projects, UI shows ${debugData.visibleInUI}. Check console for details.`)
-      
-    } catch (error) {
-      console.error('Error debugging project count:', error)
-      alert('Error checking project count. Check console for details.')
-    }
-  }
 
   if (authLoading || !user) {
     return (
@@ -232,61 +199,12 @@ export default function GraveyardPage() {
 
   return (
     <div className="min-h-screen graveyard-bg">
-      {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-900/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-100">Your Graveyard</h1>
-              <p className="text-gray-400">
-                {loading ? "Loading..." : `${projects.length} projects rest here`}
-                {error && <span className="text-yellow-400 ml-2">({error})</span>}
-              </p>
-              <p className="text-sm text-gray-500">
-                Signed in as {user?.email}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* View Toggle */}
-              <div className="flex items-center bg-gray-800 rounded-lg p-1">
-                <Button
-                  size="sm"
-                  className="bg-gray-700 text-gray-100 hover:bg-gray-600"
-                >
-                  📋 List
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-gray-400 hover:text-gray-100 hover:bg-gray-700"
-                  onClick={() => router.push('/graveyard/visual')}
-                >
-                  🪦 Graveyard
-                </Button>
-              </div>
-              
-              <Link href="/graveyard/insights">
-                <Button variant="outline" className="border-red-500/50 text-red-300 hover:bg-red-500/10">
-                  📌 My Insights
-                </Button>
-              </Link>
-              
-              <Link href="/graveyard/create">
-                <Button className="bg-gray-700 hover:bg-gray-600 text-gray-100 border-gray-600">
-                  + Bury Project
-                </Button>
-              </Link>
-              
-              <Button 
-                variant="outline" 
-                onClick={() => signOut()}
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Unified Header Component */}
+      <GraveyardHeader 
+        projectCount={projects.length}
+        loading={loading}
+        error={error}
+      />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
@@ -404,7 +322,7 @@ export default function GraveyardPage() {
         {/* Compact Re-analyze Section - For users with existing data */}
         {!loading && user && projects.length >= 2 && hasExistingAnalysis && (
           <div className="mt-8 mb-6">
-            <div className="flex justify-center gap-3">
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button 
                 onClick={triggerPatternAnalysis}
                 disabled={analyzingPatterns}
@@ -414,11 +332,13 @@ export default function GraveyardPage() {
                 {analyzingPatterns ? (
                   <>
                     <div className="animate-spin rounded-full h-3 w-3 border-2 border-purple-300 border-t-transparent mr-2"></div>
-                    Re-analyzing...
+                    <span className="hidden sm:inline">Re-analyzing...</span>
+                    <span className="sm:hidden">Re-analyzing...</span>
                   </>
                 ) : (
                   <>
-                    🔄 Re-analyze Patterns
+                    <span className="hidden sm:inline">🔄 Re-analyze Patterns</span>
+                    <span className="sm:hidden">🔄 Re-analyze</span>
                   </>
                 )}
               </Button>
@@ -436,17 +356,10 @@ export default function GraveyardPage() {
                   </>
                 ) : (
                   <>
-                    🧹 Clear Insights
+                    <span className="hidden sm:inline">🧹 Clear Insights</span>
+                    <span className="sm:hidden">🧹 Clear</span>
                   </>
                 )}
-              </Button>
-              
-              <Button 
-                onClick={debugProjectCount}
-                variant="outline"
-                className="bg-gray-800/50 border-yellow-500/50 text-yellow-300 hover:bg-yellow-600/20 hover:border-yellow-500 px-4 py-2 text-sm"
-              >
-                🔍 Debug Count
               </Button>
             </div>
           </div>

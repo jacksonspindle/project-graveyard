@@ -44,6 +44,14 @@ export function PinInsightButton({
   const { showToast } = useToast()
   const [isPinned, setIsPinned] = useState(initialPinned)
   const [isLoading, setIsLoading] = useState(false)
+  
+  console.log('🏗️ PinInsightButton mounted for:', insightId, 'Initial pinned state:', initialPinned)
+  
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setIsPinned(initialPinned)
+    console.log('🔄 Syncing internal state with prop:', initialPinned)
+  }, [initialPinned])
 
   const handlePin = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -84,8 +92,10 @@ export function PinInsightButton({
       }
       
       const newPinnedState = !isPinned
+      console.log('🎯 Pin action completed. New state:', newPinnedState)
       setIsPinned(newPinnedState)
       onPinChange?.(newPinnedState)
+      console.log('📤 onPinChange callback called with:', newPinnedState)
       
       // Show success toast
       showToast(
@@ -179,32 +189,4 @@ export function PinInsightButton({
   )
 }
 
-// Hook for managing pin state across components
-export function usePinStatus(insightId: string, insightType: 'project_specific' | 'pattern_analysis') {
-  const { user } = useAuth()
-  const [isPinned, setIsPinned] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  const checkPinStatus = async () => {
-    if (!user) {
-      setIsLoading(false)
-      return
-    }
-
-    try {
-      const pinned = await db.pinnedInsights.isPinned(user.id, insightId, insightType)
-      setIsPinned(pinned)
-    } catch (error) {
-      console.error('Error checking pin status:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Check pin status when component mounts or user changes
-  useEffect(() => {
-    checkPinStatus()
-  }, [checkPinStatus])
-
-  return { isPinned, isLoading, refreshPinStatus: checkPinStatus }
-}
+// Note: usePinStatus hook is now in /src/hooks/use-pinned-insights.ts

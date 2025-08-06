@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DEATH_CAUSES, DeathCause } from "@/types"
 import { db } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
+import { GraveyardHeader } from "@/components/graveyard-header"
+import Link from "next/link"
 
 export default function CreateProjectPage() {
   const router = useRouter()
@@ -87,22 +89,19 @@ export default function CreateProjectPage() {
 
   return (
     <div className="min-h-screen graveyard-bg">
-      {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-900/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-100">Bury a Project</h1>
-              <p className="text-gray-400">Give your abandoned project a proper burial</p>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push("/graveyard")}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
+      {/* Unified Header Component */}
+      <GraveyardHeader 
+        title="⚰️ Bury a Project"
+        subtitle="Give your abandoned project a proper burial"
+      />
+      
+      {/* Back Button Below Header */}
+      <div className="container mx-auto px-4 py-4">
+        <Link href="/graveyard">
+          <Button variant="outline" size="sm">
+            ← Cancel
+          </Button>
+        </Link>
       </div>
 
       {/* Form */}

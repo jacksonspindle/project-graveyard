@@ -11,7 +11,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { PinInsightButton, usePinStatus } from "@/components/pin-insight-button"
+import { PinInsightButton } from "@/components/pin-insight-button"
+import { usePinStatus } from "@/hooks/use-pinned-insights"
 import { 
   UserPattern, 
   PatternInsight, 
@@ -231,7 +232,11 @@ export function PatternDashboard({ userId, projectCount, onDataStatusChange, ext
                            pattern.pattern_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </h3>
                       </div>
-                      <Badge variant="secondary" className="text-xs font-medium">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs font-medium cursor-help"
+                        title="Pattern Confidence Score: This percentage indicates how confident the AI is about detecting this behavioral pattern based on the evidence found in your project history."
+                      >
                         {Math.round((pattern.confidence_score || 0) * 100)}%
                       </Badge>
                     </div>
@@ -394,7 +399,11 @@ function PatternInsightCard({
         
         <div className="flex items-center gap-2">
           {insight.confidence_score && (
-            <Badge variant="outline" className="text-xs bg-gray-700/50 border-gray-500 text-gray-200">
+            <Badge 
+              variant="outline" 
+              className="text-xs bg-gray-700/50 border-gray-500 text-gray-200 cursor-help"
+              title="AI Insight Confidence: This percentage shows how confident the AI is about this specific coaching insight based on pattern analysis and project data."
+            >
               {Math.round(insight.confidence_score * 100)}%
             </Badge>
           )}

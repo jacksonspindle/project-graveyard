@@ -6,6 +6,10 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
 import { PinnedInsightsDashboard } from "@/components/pinned-insights-dashboard"
+import { GraveyardHeader } from "@/components/graveyard-header"
+import { 
+  TooltipProvider,
+} from "@/components/ui/tooltip"
 
 export default function PinnedInsightsPage() {
   const { user, loading: authLoading } = useAuth()
@@ -33,45 +37,28 @@ export default function PinnedInsightsPage() {
   }
 
   return (
-    <div className="min-h-screen graveyard-bg">
-      {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-900/50">
+    <TooltipProvider>
+      <div className="min-h-screen graveyard-bg overflow-x-hidden">
+        {/* Unified Header Component */}
+        <GraveyardHeader 
+          title="📌 Pinned Insights"
+          subtitle="Your personal collection of valuable AI insights"
+        />
+        
+        {/* Back Button Below Header */}
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/graveyard">
-                <Button variant="outline">
-                  ← Back to Graveyard
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-100">Pinned Insights</h1>
-                <p className="text-gray-400">
-                  Your personal collection of valuable AI insights
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/graveyard/create">
-                <Button variant="outline">
-                  + Bury Project
-                </Button>
-              </Link>
-              <Button 
-                variant="outline" 
-                onClick={() => router.push("/auth")}
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
+          <Link href="/graveyard">
+            <Button variant="outline" size="sm">
+              ← Back to Graveyard
+            </Button>
+          </Link>
+        </div>
+
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-8">
+          <PinnedInsightsDashboard />
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <PinnedInsightsDashboard />
-      </div>
-    </div>
+    </TooltipProvider>
   )
 }
